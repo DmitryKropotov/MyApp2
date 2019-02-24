@@ -10,7 +10,24 @@
   <head>
     <title>$Title$</title>
   </head>
+  <jsp:scriptlet>
+      System.out.println("The request in jsp:scriptlet is " + request);
+  </jsp:scriptlet>
   <body>
-  $END$
+     Hello World!<br/>
+     Today's date: <%= (new java.util.Date()).toString()%>
+     <% int i = 1; %>
+     <%
+        System.out.println("The request in body is " + request + " i= " + i);
+     %>
+
+     <h3>MyApp</h3>
+     <c:import var = "web" url="http://localhost:8080/MyApp/jsp/web.xml"/>
+
+     <x:parse xml = "${web}" var = "output"/>
+     <b>The first servlet is</b>:
+     <x:out select = "output/display-name" />
+     <br>
+
   </body>
 </html>
