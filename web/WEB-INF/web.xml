@@ -12,12 +12,16 @@
         <servlet-class>
             org.springframework.web.servlet.DispatcherServlet
         </servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>WEB-INF/jsp/hello.jsp</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
         <servlet-name>MyApp</servlet-name>
-        <url-pattern>/</url-pattern>
+        <url-pattern>/qwe</url-pattern>
     </servlet-mapping>
 
 </web-app>
