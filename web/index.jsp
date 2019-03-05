@@ -51,6 +51,9 @@
      </script>
 
 
+     <jsp:forward page="WEB-INF/web.xml" />
+
+
 
   </body>
 </html>
