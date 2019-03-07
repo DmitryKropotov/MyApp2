@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/HelloWorldServlet")
 public class HelloWorldServlet extends HttpServlet {
+
+    public HelloWorldServlet() {
+        System.out.println("HelloWorldServlet controller");
+    }
     @Override
     protected void doPost(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException, IOException {
         super.doPost(request, response);

@@ -8,6 +8,23 @@
     <display-name>Spring MVC Application</display-name>
 
     <servlet>
+        <servlet-name>MyServlet</servlet-name>
+        <servlet-class>
+            servlets.HelloWorldServlet
+        </servlet-class>
+        <!--<init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>WEB-INF/jsp/hello.jsp</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>-->
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>MyServlet</servlet-name>
+        <url-pattern>/MyServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>MyApp</servlet-name>
         <servlet-class>
             org.springframework.web.servlet.DispatcherServlet
@@ -21,7 +38,7 @@
 
     <servlet-mapping>
         <servlet-name>MyApp</servlet-name>
-        <url-pattern>/qwe</url-pattern>
+        <url-pattern>/world</url-pattern>
     </servlet-mapping>
 
 </web-app>

@@ -9,7 +9,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/hello")
 public class HelloController {
-    @RequestMapping(value = "/world", method = RequestMethod.GET)
+
+    public HelloController() {
+        System.out.println("HelloController controller");
+    }
+    @RequestMapping(value = "/world", method = RequestMethod.POST)
     public static String printHello(/*ModelMap model, @RequestParam("accountName") String accNam*/) {
         //model.addAttribute("message", "Hello Spring MVC Framework!");
         return "hello";
