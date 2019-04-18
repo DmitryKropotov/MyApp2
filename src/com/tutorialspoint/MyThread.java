@@ -10,10 +10,10 @@ public class MyThread extends Thread {
     @Override
     public void run() {
         System.out.println("Thread " + Thread.currentThread().getName() + " classNotStaticVariable before reading=" + counter.notStaticVar);
-        int local = counter.notStaticVar;
-        System.out.println("Thread " + Thread.currentThread().getName() + " classNotStaticVariable after reading=" + counter.notStaticVar);
-        System.out.println("Thread " + Thread.currentThread().getName() + " local=" + local);
-        counter.notStaticVar = local + 1;
+        counter.notStaticVar.incrementAndGet();
+        //System.out.println("Thread " + Thread.currentThread().getName() + " classNotStaticVariable after reading=" + counter.notStaticVar);
+        //System.out.println("Thread " + Thread.currentThread().getName() + " local=" + local);
+        //counter.notStaticVar = local + 1;
         System.out.println("Thread " + Thread.currentThread().getName() + " classNotStaticVariable after modificatioin =" + counter.notStaticVar);
 
         System.out.println("Thread " + Thread.currentThread().getName() + " classStaticVariable before reading=" + Counter.staticVar);

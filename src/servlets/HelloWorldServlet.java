@@ -6,6 +6,7 @@ import com.tutorialspoint.MyThread;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 import javax.servlet.http.HttpServlet;
@@ -42,11 +43,19 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<hr>");
         out.println("<h2>Time on the server is: " + new java.util.Date() + "</h2>");
 
+        out.println("<hr>");
+
         makeCounters(out);
+
+        /*out.println("<hr>");
+
+        makeExecutorService(out);
 
         out.println("<hr>");
 
-        makeSingleThreadPull(out);
+        makeScheduledExecutorService();*/
+
+        out.println("<hr>");
 
         out.println("</body></html>");
     }
@@ -74,7 +83,6 @@ public class HelloWorldServlet extends HttpServlet {
     }
 
     private void makeCounters(PrintWriter out) {
-        //counter
         //Outside threads and counter to transfer
         MyThread[] myThreads = new MyThread[1000];
         Counter counter = new Counter();
@@ -90,9 +98,9 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<h2>Static outer variable is " + Counter.getStaticVar() + "</h2>");
 
         //Inner variables
-        out.println("<h2>Not static class variable is " + classNotStaticVariable + "</h2>");
+        out.println("<h2>Not static outer variable is " + classNotStaticVariable + "</h2>");
 
-        out.println("<h2>Static class variable is " + classStaticVariable + "</h2>");
+        out.println("<h2>Static outer variable is " + classStaticVariable + "</h2>");
 
         out.println("<hr>");
 
@@ -119,9 +127,7 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<h2>Inner static class variable is " + classStaticVariable + "</h2>");
     }
 
-    private void makeSingleThreadPull(PrintWriter out) {
-        //executors
-        Executor executor = null;
+    private void makeExecutorService(PrintWriter out) {
         ExecutorService service = null;
 
         Future submitted1 = null;
@@ -130,7 +136,7 @@ public class HelloWorldServlet extends HttpServlet {
         Future submittedCallable = null;
 
         try {
-            service = Executors.newSingleThreadExecutor();
+            service = Executors.newFixedThreadPool(2);
             out.println("<h2>service.isShutDown before submitting tasks is " + service.isShutdown() + "</h2>");
             out.println("<h2>service.isTerminated before submitting tasks is " + service.isTerminated() + "</h2>");
 
@@ -156,39 +162,15 @@ public class HelloWorldServlet extends HttpServlet {
         } /* catch (InterruptedException e) {
             e.printStackTrace();
         }*/ finally {
-            out.println("<h2>-----------------------------------------------------------</h2>");
-            out.println("<h2>service.isShutDown in finally block before shutdown is " + service.isShutdown() + "</h2>");
-            out.println("<h2>service.isTerminated in finally block before shutdown is " + service.isTerminated() + "</h2>");
-
-            try {
-                out.println("<h2>-----------------------------------------------------------</h2>");
-                out.println("<h2>submitted1.isCancelled in finally block before shutdown and getting value is " + submitted1.isCancelled() + "</h2>");
-                out.println("<h2>submitted1.isDone in finally block before shutdown and getting value is " + submitted1.isDone() + "</h2>");
-                out.println("<h2>submitted1.get in finally block before shutdown is " + submitted1.get() + "</h2>");
-
-                out.println("<h2>submitted2.isCancelled in finally block before shutdown and getting value is " + submitted2.isCancelled() + "</h2>");
-                out.println("<h2>submitted1.isDone in finally block before shutdown and getting value is " + submitted1.isDone() + "</h2>");
-                out.println("<h2>submitted2.get in finally block before shutdown is " + submitted2.get() + "</h2>");
-
-                out.println("<h2>submitted3.isCancelled in finally block before shutdown and getting value is " + submitted3.isCancelled() + "</h2>");
-                out.println("<h2>submitted1.isDone in finally block before shutdown and getting value is " + submitted1.isDone() + "</h2>");
-                out.println("<h2>submitted3.get in finally block before shutdown is " + submitted3.get() + "</h2>");
-
-                out.println("<h2>submittedCallable.isCancelled in finally block before shutdown and getting value is " + submittedCallable.isCancelled() + "</h2>");
-                out.println("<h2>submitted1.isDone in finally block before shutdown and getting value is " + submitted1.isDone() + "</h2>");
-                out.println("<h2>submittedCallable.get in finally block before shutdown is " + submittedCallable.get() + "</h2>");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+            //print info about service and futures before shutdown
+            printInfoAboutFutures(out, service, "before", Arrays.asList(submitted1, submitted2, submitted3, submittedCallable));
 
             if(service != null) {
                 /*try {
-                    //service.shutdown();
-                    System.out.println("Before awaitTermination");
+                    service.shutdown();
+                    out.println("Before awaitTermination service.isTerminated " + service.isTerminated());
                     service.awaitTermination(5, TimeUnit.SECONDS);
-                    System.out.println("After awaitTermination");
+                    out.println("After awaitTermination service.isTerminated " + service.isTerminated());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }*/
@@ -197,36 +179,64 @@ public class HelloWorldServlet extends HttpServlet {
                 futures.forEach(Runnable::run);
             }
 
-            try {
-                out.println("<h2>-----------------------------------------------------------</h2>");
-                out.println("<h2>service.isShutDown in finally block after shutdown is " + service.isShutdown() + "</h2>");
-                out.println("<h2>service.isTerminated in finally block after shutdown is " + service.isTerminated() + "</h2>");
-
-                out.println("<h2>-----------------------------------------------------------</h2>");
-                out.println("<h2>submitted1.isCancelled in finally block after shutdown is " + submitted1.isCancelled() + "</h2>");
-                out.println("<h2>submitted1.isDone in finally block after shutdown is " + submitted1.isDone() + "</h2>");
-                out.println("<h2>submitted1.get in finally block after shutdown is " + submitted1.get() + "</h2>");
-
-                out.println("<h2>submitted2.isCancelled in finally block after shutdown is " + submitted2.isCancelled() + "</h2>");
-                out.println("<h2>submitted2.isDone in finally block after shutdown is " + submitted2.isDone() + "</h2>");
-                out.println("<h2>submitted2.get in finally block after shutdown is " + submitted2.get() + "</h2>");
-
-                out.println("<h2>submitted3.isCancelled in finally block after shutdown is " + submitted3.isCancelled() + "</h2>");
-                out.println("<h2>submitted3.isDone in finally block after shutdown is " + submitted3.isDone() + "</h2>");
-                out.println("<h2>submitted3.get in finally block after shutdown is " + submitted3.get() + "</h2>");
-
-                out.println("<h2>submittedCallable.isCancelled in finally block after shutdown is " + submittedCallable.isCancelled() + "</h2>");
-                out.println("<h2>submittedCallable.isDone in finally block after shutdown is " + submittedCallable.isDone() + "</h2>");
-                out.println("<h2>submittedCallable.get in finally block after shutdown is " + submittedCallable.get() + "</h2>");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+            //print info about service and futures after shutdown
+            printInfoAboutFutures(out, service, "after", Arrays.asList(submitted1, submitted2, submitted3, submittedCallable));
         }
     }
 
-    private void makeNewSingleScheduledExecutor(PrintWriter out) {
-        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+    private void printInfoAboutFutures(PrintWriter out, ExecutorService service, String preposition, List<Future> futures) {
+
+        if(service != null) {
+            out.println("<h2>-----------------------------------------------------------</h2>");
+            out.println("<h2>service.isShutDown in finally block " + preposition + " shutdown is " + service.isShutdown() + "</h2>");
+            out.println("<h2>service.isTerminated in finally block " + preposition + " shutdown is " + service.isTerminated() + "</h2>");
+        }
+
+         if(futures != null && futures.size() != 0) {
+             out.println("<h2>-----------------------------------------------------------</h2>");
+             for(int i = 0; i<futures.size(); i++) {
+                 Future future = futures.get(i);
+                 out.println("<h2>submitted" + (i+1) + ".isCancelled in finally block " + preposition + " shutdown is " + future.isCancelled() + "</h2>");
+                 out.println("<h2>submitted" + (i+1) + ".isDone in finally block " + preposition + " shutdown is " + future.isDone() + "</h2>");
+                 try {
+                     out.println("<h2>submitted" + (i+1) + ".get in finally block " + preposition + " shutdown is " + future.get() + "</h2>");
+                 } catch (InterruptedException e) {
+                     e.printStackTrace();
+                 } catch (ExecutionException e) {
+                     e.printStackTrace();
+                 }
+             }
+         }
+    }
+
+    private void makeScheduledExecutorService() {
+        ScheduledExecutorService service = Executors.newScheduledThreadPool(2);
+        Callable callable = new Callable() {
+            @Override
+            public Object call() throws Exception {
+                System.out.println("This is callable for ScheduledExecutorService, delay = 2 seconds, Time on the server is: " + new java.util.Date());
+                return 150;
+            }
+        };
+
+        System.out.println("Time on the server is: " + new java.util.Date());
+        service.schedule(callable, 2, TimeUnit.SECONDS);
+        service.schedule(() -> {System.out.println("This is runnable for schedule in ScheduledExecutorService delay = 3 seconds. Time on the server is: " + new java.util.Date());}, 3, TimeUnit.SECONDS);
+        service.scheduleAtFixedRate(() -> {System.out.println("This is runnable for scheduleAtFixedRate in ScheduledExecutorService, delay = 5 seconds, period = 3 seconds. Time on the server is: " + new java.util.Date());
+            try {
+                Thread.sleep(6000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("This is end of runnable for scheduleAtFixedRate in ScheduledExecutorService.  Time on the server is: " + new java.util.Date());
+        }, 5,3, TimeUnit.SECONDS);
+        service.scheduleWithFixedDelay(() -> {System.out.println("This is runnable for scheduleWithFixedDelay in ScheduledExecutorService, delay = 5 seconds, delay = 3 seconds. Time on the server is: " + new java.util.Date());
+            try {
+                Thread.sleep(6000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("This is end of runnable for scheduleWithFixedDelay in ScheduledExecutorService Time on the server is: " + new java.util.Date());
+            }, 5,3, TimeUnit.SECONDS);
     }
 }

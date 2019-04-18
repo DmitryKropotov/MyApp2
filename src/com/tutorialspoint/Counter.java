@@ -1,7 +1,9 @@
 package com.tutorialspoint;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Counter {
-    int notStaticVar = 0;
+    AtomicInteger notStaticVar = new AtomicInteger(0);
 
     static int staticVar = 0;
 
@@ -9,7 +11,7 @@ public class Counter {
 
     private static int staticPrivateVar = 0;
 
-    public int getNotStaticVar() {
+    public AtomicInteger getNotStaticVar() {
         return notStaticVar;
     }
 
