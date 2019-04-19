@@ -6,9 +6,11 @@ import com.tutorialspoint.MyThread;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,17 +45,21 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<hr>");
         out.println("<h2>Time on the server is: " + new java.util.Date() + "</h2>");
 
-        out.println("<hr>");
+        /*out.println("<hr>");
 
         makeCounters(out);
 
-        /*out.println("<hr>");
+       out.println("<hr>");
 
         makeExecutorService(out);
 
         out.println("<hr>");
 
         makeScheduledExecutorService();*/
+
+        out.println("<hr>");
+
+        workWithStreams(out);
 
         out.println("<hr>");
 
@@ -238,5 +244,61 @@ public class HelloWorldServlet extends HttpServlet {
             }
             System.out.println("This is end of runnable for scheduleWithFixedDelay in ScheduledExecutorService Time on the server is: " + new java.util.Date());
             }, 5,3, TimeUnit.SECONDS);
+    }
+
+    private void workWithStreams(PrintWriter out) {
+         /*List list = new ArrayList();
+        for (int i = 0; i<4000; i++) {
+            list.add(i);
+        }
+        long time = System.currentTimeMillis();
+        list.stream().map(Object::toString).forEach(i -> out.println(i+" "));
+        out.println("It took " + (System.currentTimeMillis() - time));
+        out.println("<h2>-----------------------------------------------------------</h2>");
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+       long time = System.currentTimeMillis();
+        list.parallelStream().map(Object::toString).forEach(i -> out.println(i+" "));
+        out.println("It took " + (System.currentTimeMillis() - time));
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        out.println("<h2>-----------------------------------------------------------</h2>");
+        long time = System.currentTimeMillis();
+        list.parallelStream().map(Object::toString).forEachOrdered(i -> out.println(i+" "));
+        out.println("It took " + (System.currentTimeMillis() - time));*/
+
+        out.println("findAny not parallel stream");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().findAny().ifPresent(out::println);
+        out.println("findAny parallel stream");
+        Stream.of(1, 2, 3, 4, 5, 6).parallel().unordered().findAny().ifPresent(out::println);
+        out.println("<hr>");
+        out.println("findFirst not parallel stream");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().findFirst().ifPresent(out::println);
+        out.println("findFirst parallel stream");
+        Stream.of(1, 2, 3, 4, 5, 6).parallel().unordered().findFirst().ifPresent(out::println);
+        out.println("<hr>");
+        out.println("skip 3 not parallel stream");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().skip(3).forEach(out::println);
+        out.println("skip 3 parallel stream");
+        Stream.of(1, 2, 3, 4, 5, 6).parallel().unordered().skip(3).forEach(out::println);
+        out.println("<hr>");
+        out.println("limit 2 not parallel stream");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().limit(2).forEach(out::println);
+        out.println("limit 2 parallel stream");
+
+        Stream.of(1, 2, 3, 4, 5, 6).parallel().unordered().limit(2).forEach(out::println);
+        out.println("<hr>");
+        Stream.of(1, 2, 3, 4, 5, 6).map(x -> x*2).forEach(i -> out.println(i));
+        out.println("<hr>");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().map(x -> x*2).forEach(i -> out.println(i));//???
+
+       //reduce?
+       //collect?
     }
 }
