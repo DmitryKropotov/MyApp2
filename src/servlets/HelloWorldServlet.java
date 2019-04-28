@@ -273,31 +273,78 @@ public class HelloWorldServlet extends HttpServlet {
         list.parallelStream().map(Object::toString).forEachOrdered(i -> out.println(i+" "));
         out.println("It took " + (System.currentTimeMillis() - time));*/
 
-        out.println("findAny not parallel stream");
+        out.println("findAny not parallel unordered stream");
         Stream.of(1, 2, 3, 4, 5, 6).unordered().findAny().ifPresent(out::println);
-        out.println("findAny parallel stream");
+        out.println("<hr>");
+        out.println("findAny parallel stream, unordered after parallel");
         Stream.of(1, 2, 3, 4, 5, 6).parallel().unordered().findAny().ifPresent(out::println);
         out.println("<hr>");
-        out.println("findFirst not parallel stream");
+        out.println("findAny parallel stream, unordered before parallel");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().parallel().findAny().ifPresent(out::println);
+        out.println("<hr>");
+
+        out.println("findFirst not parallel unordered stream");
         Stream.of(1, 2, 3, 4, 5, 6).unordered().findFirst().ifPresent(out::println);
-        out.println("findFirst parallel stream");
+        out.println("<hr>");
+        out.println("findFirst parallel stream, unordered after parallel");
         Stream.of(1, 2, 3, 4, 5, 6).parallel().unordered().findFirst().ifPresent(out::println);
         out.println("<hr>");
+        out.println("findFirst parallel stream, unordered before parallel");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().parallel().findFirst().ifPresent(out::println);
+        out.println("<hr>");
+
         out.println("skip 3 not parallel stream");
+        Stream.of(1, 2, 3, 4, 5, 6).skip(3).forEach(out::println);
+        out.println("<hr>");
+        out.println("skip 3 not parallel unordered stream");
         Stream.of(1, 2, 3, 4, 5, 6).unordered().skip(3).forEach(out::println);
-        out.println("skip 3 parallel stream");
+        out.println("<hr>");
+        out.println("skip 3 parallel stream, unordered after parallel");
         Stream.of(1, 2, 3, 4, 5, 6).parallel().unordered().skip(3).forEach(out::println);
         out.println("<hr>");
-        out.println("limit 2 not parallel stream");
-        Stream.of(1, 2, 3, 4, 5, 6).unordered().limit(2).forEach(out::println);
-        out.println("limit 2 parallel stream");
+        out.println("skip 3 parallel stream, unordered before parallel");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().parallel().skip(3).forEach(out::println);
+        out.println("<hr>");
 
+        out.println("limit 2 not parallel unordered stream, unordered after parallel");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().limit(2).forEach(out::println);
+        out.println("<hr>");
+        out.println("limit 2 parallel stream, unordered after parallel");
         Stream.of(1, 2, 3, 4, 5, 6).parallel().unordered().limit(2).forEach(out::println);
         out.println("<hr>");
+        out.println("limit 2 parallel stream, unordered before parallel");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().parallel().limit(2).forEach(out::println);
+        out.println("<hr>");
+
+        Stream.of(1, 2, 3, 4, 5, 6).skip(2).limit(2).findFirst().ifPresent(out::println);
+        out.println("<hr>");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().parallel().skip(2).limit(2).findFirst().ifPresent(out::println);
+
+        out.println("* 2 not parallel stream");
         Stream.of(1, 2, 3, 4, 5, 6).map(x -> x*2).forEach(i -> out.println(i));
         out.println("<hr>");
+        out.println("* 2 not parallel unordered stream");
         Stream.of(1, 2, 3, 4, 5, 6).unordered().map(x -> x*2).forEach(i -> out.println(i));//???
+        out.println("<hr>");
+        out.println("* 2 parallel stream, unordered after parallel");
+        Stream.of(1, 2, 3, 4, 5, 6).parallel().unordered().map(x -> x*2).forEach(i -> out.println(i));//???
+        out.println("<hr>");
+        out.println("* 2 parallel stream, unordered before parallel");
+        Stream.of(1, 2, 3, 4, 5, 6).unordered().parallel().map(x -> x*2).forEach(i -> out.println(i));//???
+        out.println("<hr>");
 
+        out.println("reduce not parallel stream");
+        out.println(Arrays.asList('w', 'o', 'l', 'f').stream().reduce("",(c,s1)->c + s1, (s2,s3)->s2+s3));
+        out.println("<hr>");
+        out.println("reduce parallel stream");
+        out.println(Arrays.asList('w', 'o', 'l', 'f').stream().parallel().reduce("",(c,s1)->c + s1, (s2,s3)->s2+s3));
+        out.println("<hr>");
+        out.println("reduce not parallel stream, breaking rule");
+        out.println(Arrays.asList(1, 2, 3, 4, 5, 6).stream().reduce(0,(a,b)->a - b));
+        out.println("<hr>");
+        out.println("reduce parallel stream, breaking rule");
+        out.println(Arrays.asList(1, 2, 3, 4, 5, 6).stream().parallel().reduce(0,(a,b)->a - b));
+        out.println("<hr>");
        //reduce?
        //collect?
     }
