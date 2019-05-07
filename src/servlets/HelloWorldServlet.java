@@ -1,12 +1,13 @@
 package servlets;
 
+import com.tutorialspoint.CountSumWeightAnimals;
 import com.tutorialspoint.Counter;
 import com.tutorialspoint.MyThread;
+import com.tutorialspoint.WeightAnimals;
 
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
@@ -57,9 +58,15 @@ public class HelloWorldServlet extends HttpServlet {
 
         makeScheduledExecutorService();*/
 
-        out.println("<hr>");
+        //out.println("<hr>");
 
-        workWithStreams(out);
+        //workWithStreams(out);
+
+        //workWithCyclicBareer(out);
+
+        //workWithForkJoinPool(out);
+
+        workWithForkJoinTask(out);
 
         out.println("<hr>");
 
@@ -347,5 +354,61 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<hr>");
        //reduce?
        //collect?
+    }
+
+    private void workWithCyclicBareer(PrintWriter out) {
+        CyclicBarrier barrier = new CyclicBarrier(5);
+        CyclicBarrier barrier2 = new CyclicBarrier(5);
+        ExecutorService service = Executors.newFixedThreadPool(15);
+        for (int i = 0; i < 15; i++) {
+            int tempVar = i;
+            service.submit(() -> {
+                try {
+                    barrier.await();
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    e.printStackTrace();
+                }
+                synchronized (out) {
+                    out.println("This is service number " + tempVar + " before await");
+                    out.println("<h2>-----------------------------------------------------------</h2>");
+                }
+                try {
+                    barrier2.await();
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    e.printStackTrace();
+                }
+                synchronized (out) {
+                    out.println("This is service number " + tempVar + " after await");
+                    out.println("<h2>-----------------------------------------------------------</h2>");
+                }
+            });
+        }
+        service.shutdown();
+        while (!service.isTerminated()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void workWithForkJoinPool(PrintWriter out) {
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+        int[] animalWeight = new int[10];
+        forkJoinPool.invoke(new WeightAnimals(out, animalWeight, 0, animalWeight.length));
+        for(int i = 0; i < animalWeight.length; i++) {
+            out.println("<h2>animalWeight " + i + " " + animalWeight[i] + "</h2>");
+        }
+        out.println("<hr>");
+    }
+
+    private void workWithForkJoinTask(PrintWriter out) {
+        final int AMOUNT_OF_ANIMALS = 10;
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+        int result = forkJoinPool.invoke(new CountSumWeightAnimals(out, 0, AMOUNT_OF_ANIMALS));
+        out.println();
+        out.println("<h2>final result is " + result + "</h2>");
+        out.println("<hr>");
     }
 }
