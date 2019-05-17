@@ -51,7 +51,7 @@ public class HelloWorldServlet extends HttpServlet {
 
         makeCounters(out);
 
-       out.println("<hr>");
+        out.println("<hr>");
 
         makeExecutorService(out);
 
@@ -61,7 +61,9 @@ public class HelloWorldServlet extends HttpServlet {
 
         //out.println("<hr>");
 
-        workWithStreams(out);
+        workWithConcurrentCollections(out);
+
+        //workWithStreams(out);
 
         //workWithCyclicBareer(out);
 
@@ -96,7 +98,7 @@ public class HelloWorldServlet extends HttpServlet {
         }
     }
 
-    private void makeCounters(PrintWriter out) {
+    protected void makeCounters(PrintWriter out) {
         //Outside threads and counter to transfer
         MyThread[] myThreads = new MyThread[1000];
         Counter counter = new Counter();
@@ -141,7 +143,7 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<h2>Inner static class variable is " + classStaticVariable + "</h2>");
     }
 
-    private void makeExecutorService(PrintWriter out) {
+    protected void makeExecutorService(PrintWriter out) {
         ExecutorService service = null;
 
         Future submitted1 = null;
@@ -223,7 +225,7 @@ public class HelloWorldServlet extends HttpServlet {
          }
     }
 
-    private void makeScheduledExecutorService() {
+    protected void makeScheduledExecutorService() {
         ScheduledExecutorService service = Executors.newScheduledThreadPool(2);
         Callable callable = new Callable() {
             @Override
@@ -254,7 +256,358 @@ public class HelloWorldServlet extends HttpServlet {
             }, 5,3, TimeUnit.SECONDS);
     }
 
-    private void workWithStreams(PrintWriter out) {
+    protected void workWithConcurrentCollections(PrintWriter out) {
+        out.println("Working with ConcurrentHashMap");
+        out.println("<hr>");
+        Map<String, Integer> studentNotes = new ConcurrentHashMap<>();
+        workWithConcurrentMap(out, studentNotes);
+        for(String key: studentNotes.keySet()) {
+            out.println("Key is " + key + ", value is " + studentNotes.get(key));
+            out.println("<hr>");
+            studentNotes.put(key+"2",2);
+        }
+        studentNotes.forEach((k, v) -> {
+            out.println(k+" "+v);
+            out.println("<hr>");
+        });
+
+        out.println("Working with ConcurrentLinkedQueue");
+        out.println("<hr>");
+        Queue<String> concurrentQueue = new ConcurrentLinkedQueue<>();
+        workWithConcurrentLinkedQueue(out, concurrentQueue);
+        concurrentQueue.forEach(x -> {
+            out.println(x);
+            out.println("<hr>");
+        });
+
+        out.println("Working with ConcurrentLinkedDeque");
+        out.println("<hr>");
+        Deque<String> concurrentDeque = new ConcurrentLinkedDeque<>();
+        workWithConcurrentLinkedDeque(out, concurrentDeque);
+        concurrentDeque.forEach(x -> {
+            out.println(x);
+            out.println("<hr>");
+        });
+
+        out.println("Working with BlockingQueue");
+        out.println("<hr>");
+        BlockingQueue<String> arrayBlockingQueue = new ArrayBlockingQueue<>(2);
+        workWithBlockingQueue(out, arrayBlockingQueue);
+        out.println("ArrayBlockingQueue contains ");
+        arrayBlockingQueue.forEach(x -> {
+            out.println(x +" ");
+        });
+        out.println("<hr>");
+
+        out.println("Working with BlockingDeque");
+        out.println("<hr>");
+        BlockingDeque<String> linkedBlockingDeque = new LinkedBlockingDeque<>(2);
+        workWithBlockingDeque(out, linkedBlockingDeque);
+        out.println("ArrayBlockingDeque contains ");
+        linkedBlockingDeque.forEach(x -> {
+            out.println(x + " ");
+        });
+        out.println("<hr>");
+
+        out.println("Working with concurrentSkipListSet");
+        out.println("<hr>");
+        Set<String> concurrentSkipListSet = new ConcurrentSkipListSet();
+        workWithConcurrentSkipListSet(out, concurrentSkipListSet);
+        concurrentSkipListSet.forEach(x -> {
+            out.println(x);
+            out.println("<hr>");
+        });
+
+        out.println("Working with concurrentSkipListMap");
+        out.println("<hr>");
+        Map<String, Integer> concurrentSkipListMap = new ConcurrentSkipListMap();
+        workWithConcurrentMap(out, concurrentSkipListMap);
+        concurrentSkipListMap.forEach((k, v) -> {
+            out.println(k+" "+v);
+            out.println("<hr>");
+        });
+
+        out.println("Working with CopyOnWriteArrayList");
+        out.println("<hr>");
+        List<String> copyOnWriteArrayList = new CopyOnWriteArrayList<>();
+        workWithcopyOnWriteArrayList(out, copyOnWriteArrayList);
+        copyOnWriteArrayList.forEach(x -> {
+            out.println(x);
+            out.println("<hr>");
+        });
+
+        out.println("Working with CopyOnWriteArraySet");
+        out.println("<hr>");
+        Set<String> copyOnWriteArraySet = new CopyOnWriteArraySet<>();
+        workWithcopyOnWriteArraySet(out, copyOnWriteArraySet);
+        copyOnWriteArraySet.forEach(x -> {
+            out.println(x);
+            out.println("<hr>");
+        });
+
+
+    }
+
+    private void workWithConcurrentMap(PrintWriter out, Map map) {
+        Queue<String> students = new ArrayDeque<>(5);
+        students.addAll(Arrays.asList("Chabakauri", "Jurov", "Volkov", "Birya", "Kater"));
+        Queue<Integer> notes = new ArrayDeque<>(5);
+        notes.addAll(Arrays.asList(1, 2, 3, 4, 5));
+        ExecutorService service = Executors.newFixedThreadPool(5);
+        for (int i  = 0; i<5; i++) {
+            service.submit(() -> {
+                String student = students.poll();
+                int note = notes.poll();
+                map.put(student, note);
+            });
+        }
+        service.shutdown();
+        while (!service.isTerminated()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void workWithConcurrentLinkedQueue(PrintWriter out, Queue queue) {
+        Queue<String> students = new ArrayDeque<>(5);
+        students.addAll(Arrays.asList("Chabakauri", "Jurov", "Volkov", "Birya", "Kater", "Zheka"));
+        ExecutorService serviceToAdd = Executors.newFixedThreadPool(6);
+        for (int i  = 0; i<6; i++) {
+            serviceToAdd.submit(() -> {
+                String student = students.poll();
+                queue.offer(student);
+            });
+        }
+        serviceToAdd.shutdown();
+        while (!serviceToAdd.isTerminated()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        queue.forEach(x -> {
+            out.println(x);
+            out.println("<hr>");
+        });
+
+        ExecutorService serviceToRemove = Executors.newFixedThreadPool(5);
+        for (int i  = 0; i<5; i++) {
+            serviceToRemove.submit(() -> {
+                out.println("peek "+queue.peek());
+                out.println("poll "+queue.poll());
+            });
+        }
+        serviceToRemove.shutdown();
+        while (!serviceToRemove.isTerminated()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        out.println("<hr>");
+    }
+
+    private void workWithConcurrentLinkedDeque(PrintWriter out, Deque deque) {
+        Queue<String> students = new ArrayDeque<>(5);
+        students.addAll(Arrays.asList("Chabakauri", "Jurov", "Volkov", "Birya", "Kater", "Zheka"));
+        ExecutorService serviceToAdd = Executors.newFixedThreadPool(6);
+        for (int i  = 0; i<6; i++) {
+            int iForLambda = i;
+            serviceToAdd.submit(() -> {
+                String student = students.poll();
+                if(iForLambda < 3) {
+                    deque.offer(student);
+                } else {
+                    deque.push(student);
+                }
+            });
+        }
+        serviceToAdd.shutdown();
+        while (!serviceToAdd.isTerminated()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        deque.forEach(x -> {
+            out.println(x);
+            out.println("<hr>");
+        });
+
+        ExecutorService serviceToRemove = Executors.newFixedThreadPool(5);
+        for (int i  = 0; i<5; i++) {
+            serviceToRemove.submit(() -> {
+                out.println("peek "+deque.peek());
+                out.println("pop "+deque.pop());
+            });
+        }
+        serviceToRemove.shutdown();
+        while (!serviceToRemove.isTerminated()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        out.println("<hr>");
+    }
+
+    private void workWithBlockingQueue(PrintWriter out, BlockingQueue blockingQueue) {
+        class Adder extends Thread {
+            @Override
+            public void run() {
+                try {
+                    blockingQueue.offer("Sasha", 2, TimeUnit.SECONDS);
+                    blockingQueue.offer("Sanya", 2, TimeUnit.SECONDS);
+                    blockingQueue.offer("Savva", 2, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    out.println("catch in adder, exception " + e);
+                    out.println("<hr>");
+                    e.printStackTrace();
+                }
+            }
+        }
+        class Remover extends Thread {
+            @Override
+            public void run() {
+                try {
+                    blockingQueue.poll(2, TimeUnit.SECONDS);
+                    blockingQueue.poll(2, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    out.println("catch in remover, exception " + e);
+                    out.println("<hr>");
+                    e.printStackTrace();
+                }
+            }
+        }
+        Adder adder = new Adder();
+        Remover remover = new Remover();
+
+        long time = System.currentTimeMillis();
+        adder.start();
+        try {
+            adder.join();
+            out.println("Adding time is " + (System.currentTimeMillis() - time));
+            out.println("<hr>");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        out.println("blockingQueue contains ");
+        blockingQueue.forEach(x -> out.println(x + " "));
+        out.println("<hr>");
+
+        remover.start();
+        remover.interrupt();
+        try {
+            remover.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void workWithBlockingDeque(PrintWriter out, BlockingDeque blockingDeque) {
+        class Adder extends Thread {
+            @Override
+            public void run() {
+                try {
+                    blockingDeque.offer("Savva");
+                    blockingDeque.offer("Sasha", 2, TimeUnit.SECONDS);
+                    blockingDeque.offerFirst("Sanya", 2, TimeUnit.SECONDS);
+                    blockingDeque.offerLast("Syr", 2, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    out.println("catch in adder, exception " + e);
+                    out.println("<hr>");
+                    e.printStackTrace();
+                }
+            }
+        }
+        class Remover extends Thread {
+            @Override
+            public void run() {
+                try {
+                    blockingDeque.poll();
+                    blockingDeque.poll(2, TimeUnit.SECONDS);
+                    blockingDeque.pollFirst(2, TimeUnit.SECONDS);
+                    blockingDeque.pollLast(2, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    out.println("catch in remover, exception " + e);
+                    out.println("<hr>");
+                    e.printStackTrace();
+                }
+            }
+        }
+        Adder adder = new Adder();
+        Remover remover = new Remover();
+        long time = System.currentTimeMillis();
+        adder.start();
+        try {
+            adder.join();
+            out.println("Adding time is " + (System.currentTimeMillis() - time));
+            out.println("<hr>");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        out.println("blockingDeque contains ");
+        blockingDeque.forEach(x -> {
+            out.println(x + " ");
+        });
+        out.println("<hr>");
+
+        remover.start();
+        remover.interrupt();
+        try {
+            remover.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void workWithConcurrentSkipListSet(PrintWriter out, Set concurrentSkipListSet) {
+        Queue<String> students = new ArrayDeque<>(5);
+        students.addAll(Arrays.asList("Chabakauri", "Jurov", "Volkov", "Birya", "Kater"));
+        ExecutorService service = Executors.newFixedThreadPool(5);
+        for (int i = 0; i < 5; i++) {
+            service.submit(() -> {
+                String student = students.poll();
+                concurrentSkipListSet.add(student);
+            });
+        }
+        service.shutdown();
+        while (!service.isTerminated()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void workWithcopyOnWriteArrayList(PrintWriter out, List copyOnWriteArrayList) {
+        copyOnWriteArrayList.addAll(Arrays.asList("a", "b", "c"));
+        for (Object item: copyOnWriteArrayList) {
+            copyOnWriteArrayList.add("q");
+        }
+    }
+
+    private void workWithcopyOnWriteArraySet(PrintWriter out, Set copyOnWriteArraySet) {
+        copyOnWriteArraySet.addAll(Arrays.asList("a", "b", "c"));
+        for (Object item: copyOnWriteArraySet) {
+            if(!copyOnWriteArraySet.add("q")) {
+                copyOnWriteArraySet.add("q "+copyOnWriteArraySet.size());
+            }
+        }
+    }
+
+    protected void workWithStreams(PrintWriter out) {
          /*List list = new ArrayList();
         for (int i = 0; i<4000; i++) {
             list.add(i);
@@ -674,7 +1027,7 @@ public class HelloWorldServlet extends HttpServlet {
         //collect?
     }
 
-    private void workWithCyclicBareer(PrintWriter out) {
+    protected void workWithCyclicBareer(PrintWriter out) {
         CyclicBarrier barrier = new CyclicBarrier(5);
         CyclicBarrier barrier2 = new CyclicBarrier(5);
         ExecutorService service = Executors.newFixedThreadPool(15);
@@ -711,7 +1064,7 @@ public class HelloWorldServlet extends HttpServlet {
         }
     }
 
-    private void workWithForkJoinPool(PrintWriter out) {
+    protected void workWithForkJoinPool(PrintWriter out) {
         ForkJoinPool forkJoinPool = new ForkJoinPool();
         int[] animalWeight = new int[10];
         forkJoinPool.invoke(new WeightAnimals(out, animalWeight, 0, animalWeight.length));
@@ -721,12 +1074,28 @@ public class HelloWorldServlet extends HttpServlet {
         out.println("<hr>");
     }
 
-    private void workWithForkJoinTask(PrintWriter out) {
+    protected void workWithForkJoinTask(PrintWriter out) {
         final int AMOUNT_OF_ANIMALS = 10;
         ForkJoinPool forkJoinPool = new ForkJoinPool();
         int result = forkJoinPool.invoke(new CountSumWeightAnimals(out, 0, AMOUNT_OF_ANIMALS));
         out.println();
         out.println("<h2>final result is " + result + "</h2>");
         out.println("<hr>");
+    }
+
+    protected void workWithSemaphore(PrintWriter out) {
+
+    }
+
+    protected void workWithCountDownLatch(PrintWriter out) {
+
+    }
+
+    protected void workWithCyclicBarrier(PrintWriter out) {
+
+    }
+
+    protected void workWithPhaser(PrintWriter out) {
+
     }
 }
