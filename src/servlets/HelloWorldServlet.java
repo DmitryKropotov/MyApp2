@@ -61,7 +61,7 @@ public class HelloWorldServlet extends HttpServlet {
 
         //out.println("<hr>");
 
-        workWithConcurrentCollections(out);
+        //workWithConcurrentCollections(out);
 
         //workWithStreams(out);
 
@@ -70,6 +70,8 @@ public class HelloWorldServlet extends HttpServlet {
         //workWithForkJoinPool(out);
 
         //workWithForkJoinTask(out);
+
+        workWithSemaphore(out);
 
         out.println("<hr>");
 
@@ -1084,7 +1086,44 @@ public class HelloWorldServlet extends HttpServlet {
     }
 
     protected void workWithSemaphore(PrintWriter out) {
+        final int NUMBER_OF_THREADS = 100;
+        Semaphore semaphore = new Semaphore(10, true);
 
+        class MyThread extends Thread {
+            private final int THREAD_NUMBER;
+
+            public MyThread(int threadNumber) {
+                this.THREAD_NUMBER = threadNumber;
+            }
+
+            @Override
+            public void run() {
+                out.println("This is thread number " + THREAD_NUMBER +
+                        ". availablePermits are " + semaphore.availablePermits() + " drainPermits are " + semaphore.drainPermits() +
+                        ". hasQueuedThreads is " + semaphore.hasQueuedThreads());
+                out.println("<hr>");
+                try {
+                    semaphore.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                out.println("This is thread number " + THREAD_NUMBER);
+                out.println("<hr>");
+            }
+        }
+
+        MyThread[] myThreads = new MyThread[NUMBER_OF_THREADS];
+        for (int i = 0; i < myThreads.length; i++) {
+            myThreads[i] = new MyThread(i);
+        }
+
+        for (int i = 0; i < myThreads.length; i++) {
+            if(semaphore.hasQueuedThreads()) {
+                out.println("semaphore.hasQueuedThreads() is true, i = " + i);
+                semaphore.release();
+            }
+            myThreads[i].start();
+        }
     }
 
     protected void workWithCountDownLatch(PrintWriter out) {
